@@ -48,6 +48,12 @@ export default class dSyncIPSec {
                     blockVPN = null,
                     blockTor = null,
                     blockAbuser = null,
+
+                   whitelistedUrls = null,
+                   whitelistedIps = null,
+                   blockedCountryCodes = null,
+                   whitelistedCompanyDomains = null,
+                   blacklistedIps = null,
                 }){
 
         if(blockBogon !== null) this.blockBogon = blockBogon
@@ -58,7 +64,13 @@ export default class dSyncIPSec {
         if(blockVPN !== null) this.blockVPN = blockVPN
         if(blockTor !== null) this.blockTor = blockTor
         if(blockAbuser !== null) this.blockAbuser = blockAbuser
+
+        if(whitelistedUrls !== null) this.urlWhitelist = new ArrayTools(whitelistedUrls)
+        if(whitelistedIps !== null) this.ipWhitelist = new ArrayTools(whitelistedIps)
+        if(blacklistedIps !== null) this.ipBlacklist = new ArrayTools(blacklistedIps)
+        if(blockedCountryCodes !== null) this.blockedCountriesByCode = new ArrayTools(blockedCountryCodes)
     }
+
 
     whitelistIP(ip, allowDuplicates = false){
         if(!ip) throw new Error("Unable to whitelist ip as no ip was provided.");

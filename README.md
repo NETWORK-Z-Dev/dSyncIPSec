@@ -20,19 +20,19 @@ export let ipsec = new dSyncIPSec();
 // alternatively, with settings already specified.
 // settings shown here are the default settings.
 export let ipsec = new dSyncIPSec({
-    blockBogon = true,
-    blockDatacenter = true,
-    blockSatelite = true,
-    blockCrawler = true,
-    blockProxy = true,
-    blockVPN = true,
-    blockTor = true,
-    blockAbuser = true,
+    blockBogon: true,
+    blockDatacenter: true,
+    blockSatelite: true,
+    blockCrawler: true,
+    blockProxy: true,
+    blockVPN: true,
+    blockTor: true,
+    blockAbuser: true,
     // some arrays
-    whitelistedUrls = [],
-    whitelistedIps = [],
-    blockedCountryCodes = [],
-    whitelistedCompanyDomains = [],
+    whitelistedUrls: [],
+    whitelistedIps: [],
+    blockedCountryCodes: [],
+    whitelistedCompanyDomains: [],
     blacklistedIps = [
         "::1",
         "127.0.0.1",

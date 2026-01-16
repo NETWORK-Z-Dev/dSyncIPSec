@@ -7,6 +7,10 @@ This library comes with features meant to prevent abuse in form of spam and othe
 
 The library was designed for usage with `express` and filtering abusive and (potentially) malicious traffic based on the IP address.
 
+> [!IMPORTANT]
+>
+> It is highly recommended that you cache or store the API response!!!!
+
 ------
 
 ## Setup

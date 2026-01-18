@@ -30,13 +30,12 @@ export default class dSyncIPSec {
         this.blockVPN = blockVPN;
         this.blockTor = blockTor;
         this.blockAbuser = blockAbuser;
-        this.blockedCountryCodes = blockedCountryCodes;
 
-        this.urlWhitelist = new ArrayTools(whitelistedUrls)
-        this.ipWhitelist = new ArrayTools(whitelistedIps)
-        this.ipBlacklist = new ArrayTools(blacklistedIps)
-        this.companyDomainWhitelist = new ArrayTools(whitelistedCompanyDomains)
-        this.blockedCountriesByCode = new ArrayTools(blockedCountryCodes)
+        this.urlWhitelist = whitelistedUrls
+        this.ipWhitelist = whitelistedIps
+        this.ipBlacklist = blacklistedIps
+        this.companyDomainWhitelist = whitelistedCompanyDomains
+        this.blockedCountriesByCode = blockedCountryCodes
     }
 
     updateRule({
@@ -65,33 +64,38 @@ export default class dSyncIPSec {
         if(blockTor !== null) this.blockTor = blockTor
         if(blockAbuser !== null) this.blockAbuser = blockAbuser
 
-        if(whitelistedUrls !== null) this.urlWhitelist = new ArrayTools(whitelistedUrls)
-        if(whitelistedIps !== null) this.ipWhitelist = new ArrayTools(whitelistedIps)
-        if(blacklistedIps !== null) this.ipBlacklist = new ArrayTools(blacklistedIps)
-        if(blockedCountryCodes !== null) this.blockedCountriesByCode = new ArrayTools(blockedCountryCodes)
+        if (whitelistedUrls !== null) this.urlWhitelist = whitelistedUrls
+        if (whitelistedIps !== null) this.ipWhitelist = whitelistedIps
+        if (blacklistedIps !== null) this.ipBlacklist = blacklistedIps
+        if (blockedCountryCodes !== null) this.blockedCountriesByCode = blockedCountryCodes
     }
 
 
     whitelistIP(ip, allowDuplicates = false){
         if(!ip) throw new Error("Unable to whitelist ip as no ip was provided.");
-        if(!this.ipWhitelist.matches(ip) && !allowDuplicates) this.ipWhitelist.addEntry(ip);
-        if(this.ipBlacklist.matches(ip)) this.ipBlacklist.removeEntry(ip);
+        if(!ArrayTools.matches(this.ipWhitelist, ip) && !allowDuplicates)
+            ArrayTools.addEntry(this.ipWhitelist, ip);
+        if(ArrayTools.matches(this.ipBlacklist, ip))
+            this.ipBlacklist = ArrayTools.removeEntry(this.ipBlacklist, ip);
     }
 
     blacklistIp(ip, allowDuplicates = false){
         if(!ip) throw new Error("Unable to blacklist ip as no ip was provided.");
-        if(!this.ipBlacklist.matches(ip) && !allowDuplicates) this.ipBlacklist.addEntry(ip);
-        if(this.ipWhitelist.matches(ip)) this.ipWhitelist.removeEntry(ip);
+        if(!ArrayTools.matches(this.ipBlacklist, ip) && !allowDuplicates)
+            ArrayTools.addEntry(this.ipBlacklist, ip);
+        if(ArrayTools.matches(this.ipWhitelist, ip))
+            this.ipWhitelist = ArrayTools.removeEntry(this.ipWhitelist, ip);
     }
+
 
     isBlacklistedIp(ip){
         if(!ip) throw new Error("Coudlnt check ip blacklist as no ip was provided.")
-        return this.ipBlacklist.matches(ip);
+        return ArrayTools.matches(this.ipBlacklist, ip)
     }
 
     isWhitelistedIp(ip){
         if(!ip) throw new Error("Coudlnt check ip blacklist as no ip was provided.")
-        return this.ipWhitelist.matches(ip);
+        return ArrayTools.matches(this.ipWhitelist, ip)
     }
 
     async filterExpressTraffic(app){
@@ -106,15 +110,15 @@ export default class dSyncIPSec {
             if(!reqPath) throw new Error("Unable to get request path from req parameter as it wasnt specified or null");
 
             // first check for ip blacklist
-            if(this.ipBlacklist.matches(ipInfo?.ip)) return res.sendStatus(403);
+            if(ArrayTools.matches(this.ipBlacklist, ipInfo?.ip)) return res.sendStatus(403);
 
             // then we can check for whitelisted urls as these bypass normal checks
             // url whitelist
-            if(this.urlWhitelist.matches(reqPath)) return next();
+            if(ArrayTools.matches(this.urlWhitelist, reqPath)) return next();
             // let whitelisted ips pass
-            if(this.ipWhitelist.matches(ipInfo?.ip)) return next();
+            if(ArrayTools.matches(this.ipWhitelist, ipInfo?.ip)) return next();
             // company domain whitelist
-            if(this.companyDomainWhitelist.matches(ipInfo?.company?.domain)) return next();
+            if(ArrayTools.matches(this.companyDomainWhitelist, ipInfo?.company?.domain)) return next();
 
             // looking kinda beautiful
             if (ipInfo?.is_bogon && this.blockBogon) return res.sendStatus(403);
@@ -128,7 +132,7 @@ export default class dSyncIPSec {
 
             if (
                 ipInfo.location?.country_code &&
-                this.blockedCountriesByCode.matches(ipInfo?.location?.country_code?.toLowerCase())
+                ArrayTools.matches(this.blockedCountriesByCode, ipInfo?.location?.country_code?.toLowerCase())
             ) return res.sendStatus(403);
 
             // continue

@@ -21,7 +21,7 @@ export default class dSyncIPSec {
                         "localhost"
                     ],
                     //
-                    checkCache = null
+                    checkCache = null,
                     setCache = null
                 } = {}) {
 

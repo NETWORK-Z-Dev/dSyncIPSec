@@ -105,8 +105,14 @@ export default class dSyncIPSec {
     }
 
     async checkRequest(req) {
-        const ipInfo = await this.lookupIP(this.getClientIp(req));
+        let clientIP = this.getClientIp(req);
+
+        // remove localhost ips
+        if(clientIP === "::1" || clientIP === "127.0.0.1") return { allow: true }
+
+        const ipInfo = await this.lookupIP(clientIP);
         if (!ipInfo) return { allow: true };
+        if (ipInfo?.blocked === true) return { allow: false };
 
         const reqPath = req.path;
         if (!reqPath) return { allow: true };
@@ -164,7 +170,7 @@ export default class dSyncIPSec {
         if (!ip) throw new Error("Unable to lookup ip as it wasnt provided.")
 
         // if an ip is blacklisted we return with an error "reponse"
-        if (this.isBlacklistedIp(ip)) return {error: `IP ${ip} was blacklisted.`};
+        if (this.isBlacklistedIp(ip)) return {error: `IP ${ip} was blacklisted.`, blocked: true};
 
         // if we use cache we can skip the fetch
         if (this.checkCache && typeof this.checkCache === "function") {

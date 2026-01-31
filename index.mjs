@@ -22,6 +22,7 @@ export default class dSyncIPSec {
                     ],
                     //
                     checkCache = null
+                    setCache = null
                 } = {}) {
 
         this.blockBogon = blockBogon;
@@ -40,6 +41,7 @@ export default class dSyncIPSec {
         this.blockedCountriesByCode = blockedCountryCodes;
 
         this.checkCache = checkCache;
+        this.setCache = setCache;
     }
 
     updateRule({
@@ -167,6 +169,10 @@ export default class dSyncIPSec {
         let ipRequest = await fetch(`https://api.ipapi.is/?q=${ip}`);
         if (ipRequest.status === 200) {
             let ipData = await ipRequest.json();
+
+            // possibility to set cache
+            if(this.setCache && typeof this.setCache === "function") await this.setCache(ip, ipData);
+
             return ipData;
         } else {
             return {error: "Failed to fetch IP data"};

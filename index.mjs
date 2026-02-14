@@ -179,16 +179,18 @@ export default class dSyncIPSec {
         }
 
         // make request to get ip info
-        let ipRequest = await fetch(`https://api.ipapi.is/?q=${ip}`);
-        if (ipRequest.status === 200) {
-            let ipData = await ipRequest.json();
+        try{
+            let ipRequest = await fetch(`https://api.ipapi.is/?q=${ip}`);
+            if (ipRequest.status === 200) {
+                let ipData = await ipRequest.json();
 
-            // possibility to set cache
-            if(this.setCache && typeof this.setCache === "function") await this.setCache(ip, ipData);
+                // possibility to set cache
+                if(this.setCache && typeof this.setCache === "function") await this.setCache(ip, ipData);
 
-            return ipData;
-        } else {
-            return {error: "Failed to fetch IP data"};
-        }
+                return ipData;
+            } else {
+                return {error: "Failed to fetch IP data"};
+            }
+        }catch{}
     }
 }

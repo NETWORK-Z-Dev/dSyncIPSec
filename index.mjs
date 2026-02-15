@@ -151,7 +151,7 @@ export default class dSyncIPSec {
 
         return { allow: true };
     }
-    
+
     filterExpressTraffic(app) {
         app.use(async (req, res, next) => {
             const r = await this.checkRequest(req);
@@ -188,7 +188,7 @@ export default class dSyncIPSec {
                 setTimeout(() => {
                     timeoutHit = true;
                     resolve(null);
-                }, 1000)
+                }, 500)
             );
 
             const request = fetch(`https://api.ipapi.is/?q=${ip}`)

@@ -180,17 +180,31 @@ export default class dSyncIPSec {
 
         // make request to get ip info
         try{
-            let ipRequest = await fetch(`https://api.ipapi.is/?q=${ip}`);
-            if (ipRequest.status === 200) {
-                let ipData = await ipRequest.json();
+            let timeoutHit = false;
 
-                // possibility to set cache
-                if(this.setCache && typeof this.setCache === "function") await this.setCache(ip, ipData);
+            const timeout = new Promise(resolve =>
+                setTimeout(() => {
+                    timeoutHit = true;
+                    resolve(null);
+                }, 1000)
+            );
 
-                return ipData;
-            } else {
-                return {error: "Failed to fetch IP data"};
-            }
-        }catch{}
+            const request = fetch(`https://api.ipapi.is/?q=${ip}`)
+                .then(r => r.ok ? r.json() : null)
+                .catch(() => null);
+
+            const ipData = await Promise.race([request, timeout]);
+
+            if (!ipData) return null;
+
+            // possibility to set cache
+            if(this.setCache && typeof this.setCache === "function")
+                await this.setCache(ip, ipData);
+
+            return ipData;
+        }catch{
+            return null;
+        }
     }
+
 }

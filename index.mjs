@@ -99,11 +99,6 @@ export default class dSyncIPSec {
         return ArrayTools.matches(this.ipBlacklist, ip)
     }
 
-    isWhitelistedIp(ip) {
-        if (!ip) throw new Error("Coudlnt check ip blacklist as no ip was provided.")
-        return ArrayTools.matches(this.ipWhitelist, ip)
-    }
-
     async checkRequest(req) {
         let clientIP = this.getClientIp(req);
 
@@ -112,7 +107,7 @@ export default class dSyncIPSec {
         let ipInfo = null;
 
         if (this.checkCache && typeof this.checkCache === "function") {
-            ipInfo = await this.checkCache(clientIP);
+            this.checkCache(clientIP).then(r => ipInfo = r).catch(()=>{});
         }
 
         if (!ipInfo) {
@@ -156,9 +151,7 @@ export default class dSyncIPSec {
 
         return { allow: true };
     }
-
-
-
+    
     filterExpressTraffic(app) {
         app.use(async (req, res, next) => {
             const r = await this.checkRequest(req);

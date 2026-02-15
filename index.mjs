@@ -107,12 +107,20 @@ export default class dSyncIPSec {
     async checkRequest(req) {
         let clientIP = this.getClientIp(req);
 
-        // remove localhost ips
         if(clientIP === "::1" || clientIP === "127.0.0.1") return { allow: true }
 
-        const ipInfo = await this.lookupIP(clientIP);
-        if (!ipInfo) return { allow: true };
-        if (ipInfo?.blocked === true) return { allow: false };
+        let ipInfo = null;
+
+        if (this.checkCache && typeof this.checkCache === "function") {
+            ipInfo = await this.checkCache(clientIP);
+        }
+
+        if (!ipInfo) {
+            this.lookupIP(clientIP);
+            return { allow: true };
+        }
+
+        if (ipInfo?.blocked === true) return { allow: false, code: 403 };
 
         const reqPath = req.path;
         if (!reqPath) return { allow: true };
@@ -148,6 +156,7 @@ export default class dSyncIPSec {
 
         return { allow: true };
     }
+
 
 
     filterExpressTraffic(app) {
